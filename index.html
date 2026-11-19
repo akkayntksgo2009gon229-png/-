@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>喵喵单词大作战 · 高职英语 Unit 1-3</title>
+  <style>
+    :root {
+      --bg: #fff8f0;
+      --card: #ffffff;
+      --primary: #ff8c42;
+      --primary-dark: #e66e22;
+      --text: #3d312e;
+      --muted: #8c7a75;
+      --correct: #2ec4b6;
+      --wrong: #ff595e;
+      --border: #f3e5d8;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .app {
+      width: 100%;
+      max-width: 480px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .header {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(255, 140, 66, 0.08);
+    }
+    .title-area h1 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--primary-dark);
+    }
+    .title-area p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .stats {
+      display: flex;
+      gap: 8px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .badge {
+      background: #fff1e6;
+      color: var(--primary-dark);
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 1px solid #ffd8be;
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      flex: 1;
+      min-width: 75px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .cat-stage {
+      background: linear-gradient(180deg, #fff3e6 0%, #ffffff 100%);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: 18px 16px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    }
+    .cat-info {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .cat-avatar {
+      width: 110px;
+      height: 110px;
+      margin: 0 auto;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .cat-avatar.bounce { transform: scale(1.15) rotate(-4deg); }
+    .cat-avatar.shake { animation: shake 0.35s; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    .cat-bubble {
+      display: inline-block;
+      margin-top: 8px;
+      background: #fff;
+      border: 1.5px solid #ffd8be;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #f3e5d8;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .question-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    }
+    .unit-tag {
+      display: inline-block;
+      font-size: 12px;
+      background: #e6f8f6;
+      color: #1f9d92;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .meaning {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 4px 0 8px;
+    }
+    .phonetic-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+    .speak-btn {
+      background: #fff1e6;
+      border: 1px solid #ffd8be;
+      border-radius: 99px;
+      padding: 4px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+    .spell-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .spell-input {
+      width: 100%;
+      padding: 14px;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 2px;
+      border: 2.5px solid #ffd8be;
+      border-radius: 16px;
+      outline: none;
+      color: var(--text);
+      background: #fffcf9;
+    }
+    .spell-input:focus { border-color: var(--primary); }
+    .hint-text {
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: 3px;
+      font-family: monospace;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:active { background: var(--primary-dark); }
+    .btn-sub { background: #f5ebe1; color: var(--text); }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .option-btn {
+      padding: 14px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: #fffcf9;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .option-btn.right {
+      background: var(--correct);
+      color: #fff;
+      border-color: var(--correct);
+    }
+    .option-btn.wrong {
+      background: var(--wrong);
+      color: #fff;
+      border-color: var(--wrong);
+    }
+    .feedback {
+      margin-top: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      min-height: 22px;
+    }
+    .result-modal {
+      display: none;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    .wrong-list {
+      text-align: left;
+      background: #fff8f0;
+      border-radius: 14px;
+      padding: 12px;
+      margin: 14px 0;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title-area">
+        <h1>喵喵单词默写</h1>
+        <p>高职大专英语 · Unit 1-3 (40词)</p>
+      </div>
+      <div class="stats">
+        <div class="badge">鱼干 <span id="fishCount">0</span></div>
+        <div class="badge">连对 <span id="streakCount">0</span></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="pill active" onclick="setUnit('all', this)">全部(40)</button>
+      <button class="pill" onclick="setUnit('Unit1', this)">Unit1(15)</button>
+      <button class="pill" onclick="setUnit('Unit2', this)">Unit2(12)</button>
+      <button class="pill" onclick="setUnit('Unit3', this)">Unit3(13)</button>
+    </div>
+
+    <div class="controls">
+      <button class="pill active" id="modeSpellBtn" onclick="setMode('spell')">拼写默写模式</button>
+      <button class="pill" id="modeChoiceBtn" onclick="setMode('choice')">四选一热身</button>
+    </div>
+
+    <div class="cat-stage" id="catStage">
+      <div class="cat-info" id="catName">当前陪练：大橘猫 · 蛋黄</div>
+      <div class="cat-avatar" id="catAvatar"></div>
+      <div class="cat-bubble" id="catBubble">喵呜~ 拼对单词就喂我吃小鱼干吧！</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="question-card" id="quizCard">
+      <div class="unit-tag" id="unitTag">Unit 1 · 个人与家庭</div>
+      <div class="meaning" id="wordMeaning">v. 介绍</div>
+      <div class="phonetic-row">
+        <span id="wordPhonetic">/ˌɪntrəˈdjuːs/</span>
+        <button class="speak-btn" onclick="speakCurrent()">听发音</button>
+      </div>
+
+      <div class="spell-box" id="spellArea">
+        <div class="hint-text" id="hintText">_ _ _ _ _ _ _ _ _</div>
+        <input type="text" id="spellInput" class="spell-input" placeholder="输入英文单词..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+        <div class="btn-row">
+          <button class="btn btn-sub" onclick="giveHint()">提示字母</button>
+          <button class="btn btn-primary" onclick="checkSpell()">提交喂猫</button>
+        </div>
+      </div>
+
+      <div class="options-grid" id="choiceArea" style="display:none;"></div>
+      <div class="feedback" id="feedbackText"></div>
+    </div>
+
+    <div class="result-modal" id="resultModal">
+      <h2>本轮闯关完成！</h2>
+      <p id="resultSummary"></p>
+      <div class="wrong-list" id="wrongListBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-sub" id="retryWrongBtn" onclick="retryWrong()">只练错题</button>
+        <button class="btn btn-primary" onclick="restartAll()">再来一轮</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WORDS = [
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "introduce", phonetic: "/ˌɪntrəˈdjuːs/", meaning: "v. 介绍" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "energetic", phonetic: "/ˌenəˈdʒetɪk/", meaning: "adj. 精力充沛的" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "manager", phonetic: "/ˈmænɪdʒə(r)/", meaning: "n. 经理" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "manage", phonetic: "/ˈmænɪdʒ/", meaning: "v. 管理；经营" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "department", phonetic: "/dɪˈpɑːtmənt/", meaning: "n. 部门" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "vocational", phonetic: "/vəʊˈkeɪʃənl/", meaning: "adj. 职业的" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "strict", phonetic: "/strɪkt/", meaning: "adj. 严格的" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "especially", phonetic: "/ɪˈspeʃəli/", meaning: "adv. 尤其，特别" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "nearby", phonetic: "/ˈnɪəbaɪ/", meaning: "adj.&adv. 在附近" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "gift", phonetic: "/ɡɪft/", meaning: "n. 礼物" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "visit", phonetic: "/ˈvɪzɪt/", meaning: "v.&n. 拜访，参观" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "pet", phonetic: "/pet/", meaning: "n. 宠物" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "jog", phonetic: "/dʒɒɡ/", meaning: "v. 慢跑" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "alone", phonetic: "/əˈləʊn/", meaning: "adj.&adv. 独自的" },
+      { unit: "Unit1", unitName: "Unit 1 · 个人与家庭", word: "parent", phonetic: "/ˈpeərənt/", meaning: "n. 父/母亲" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "transport", phonetic: "/ˈtrænspɔːt/", meaning: "n. 交通" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "convenient", phonetic: "/kənˈviːniənt/", meaning: "adj. 方便的" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "direction", phonetic: "/dəˈrekʃn/", meaning: "n. 方向" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "subway", phonetic: "/ˈsʌbweɪ/", meaning: "n. 地铁" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "taxi", phonetic: "/ˈtæksi/", meaning: "n. 出租车" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "airport", phonetic: "/ˈeəpɔːt/", meaning: "n. 机场" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "arrive", phonetic: "/əˈraɪv/", meaning: "v. 到达" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "passenger", phonetic: "/ˈpæsɪndʒə(r)/", meaning: "n. 乘客" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "route", phonetic: "/ruːt/", meaning: "n. 路线" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "rush", phonetic: "/rʌʃ/", meaning: "n. 匆忙；高峰期" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "station", phonetic: "/ˈsteɪʃn/", meaning: "n. 车站" },
+      { unit: "Unit2", unitName: "Unit 2 · 交通出行", word: "express", phonetic: "/ɪkˈspres/", meaning: "adj. 特快的" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "shop", phonetic: "/ʃɒp/", meaning: "v. 购物 n.商店" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "customer", phonetic: "/ˈkʌstəmə(r)/", meaning: "n. 顾客" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "discount", phonetic: "/ˈdɪskaʊnt/", meaning: "n. 折扣" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "price", phonetic: "/praɪs/", meaning: "n. 价格" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "size", phonetic: "/saɪz/", meaning: "n. 尺寸" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "cheap", phonetic: "/tʃiːp/", meaning: "adj. 便宜的" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "expensive", phonetic: "/ɪkˈspensɪv/", meaning: "adj. 昂贵的" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "change", phonetic: "/tʃeɪndʒ/", meaning: "n. 零钱 v.改变" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "choose", phonetic: "/tʃuːz/", meaning: "v. 选择" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "quality", phonetic: "/ˈkwɒləti/", meaning: "n. 质量" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "brand", phonetic: "/brænd/", meaning: "n. 品牌" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "fit", phonetic: "/fɪt/", meaning: "v. 适合" },
+      { unit: "Unit3", unitName: "Unit 3 · 购物", word: "pay", phonetic: "/peɪ/", meaning: "v. 支付" }
+    ];
+
+    const CATS = [
+      { name: "大橘猫 · 蛋黄", body: "#ffb347", ear: "#ff8c42", stripe: "#e67e22", eye: "#3d312e" },
+      { name: "三花猫 · 团子", body: "#ffffff", ear: "#3d312e", stripe: "#ff8c42", eye: "#2ec4b6" },
+      { name: "英短蓝猫 · 煤球", body: "#8d99ae", ear: "#6c757d", stripe: "#495057", eye: "#ffb703" },
+      { name: "暹罗猫 · 摩卡", body: "#f4e3d7", ear: "#4a3525", stripe: "#5c4033", eye: "#3a86ff" },
+      { name: "奶牛猫 · 奥利奥", body: "#f8f9fa", ear: "#212529", stripe: "#212529", eye: "#52b788" }
+    ];
+
+    let currentUnit = 'all';
+    let currentMode = 'spell';
+    let queue = [];
+    let currentIndex = 0;
+    let fish = 0;
+    let streak = 0;
+    let wrongWords = [];
+    let revealedCount = 0;
+    let locked = false;
+
+    function renderCat(catIdx, mood = 'normal') {
+      const cat = CATS[catIdx % CATS.length];
+      document.getElementById('catName').textContent = `当前陪练：${cat.name}`;
+      const eyeSvg = mood === 'happy'
+        ? `<path d="M35 55 Q40 48 45 55" stroke="${cat.eye}" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+           <path d="M65 55 Q70 48 75 55" stroke="${cat.eye}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`
+        : mood === 'sad'
+        ? `<line x1="35" y1="50" x2="45" y2="56" stroke="${cat.eye}" stroke-width="3" stroke-linecap="round"/>
+           <line x1="45" y1="50" x2="35" y2="56" stroke="${cat.eye}" stroke-width="3" stroke-linecap="round"/>
+           <line x1="65" y1="50" x2="75" y2="56" stroke="${cat.eye}" stroke-width="3" stroke-linecap="round"/>
+           <line x1="75" y1="50" x2="65" y2="56" stroke="${cat.eye}" stroke-width="3" stroke-linecap="round"/>`
+        : `<circle cx="40" cy="53" r="5" fill="${cat.eye}"/><circle cx="41.5" cy="51.5" r="1.8" fill="#fff"/>
+           <circle cx="70" cy="53" r="5" fill="${cat.eye}"/><circle cx="71.5" cy="51.5" r="1.8" fill="#fff"/>`;
+
+      const mouthSvg = mood === 'happy'
+        ? `<path d="M48 66 Q55 75 62 66" fill="#ff758f" stroke="#3d312e" stroke-width="2"/>`
+        : `<path d="M47 65 Q51 69 55 65 Q59 69 63 65" fill="none" stroke="#3d312e" stroke-width="2.2" stroke-linecap="round"/>`;
+
+      const fishSvg = mood === 'happy'
+        ? `<ellipse cx="86" cy="28" rx="10" ry="5" fill="#4ecdc4" stroke="#3d312e" stroke-width="1.5"/>
+           <polygon points="95,28 102,23 102,33" fill="#4ecdc4" stroke="#3d312e" stroke-width="1.5"/>`
+        : '';
+
+      document.getElementById('catAvatar').innerHTML = `
+        <svg viewBox="0 0 110 110" width="110" height="110">
+          <polygon points="22,42 30,14 48,32" fill="${cat.ear}" stroke="#3d312e" stroke-width="2.5" stroke-linejoin="round"/>
+          <polygon points="88,42 80,14 62,32" fill="${cat.ear}" stroke="#3d312e" stroke-width="2.5" stroke-linejoin="round"/>
+          <ellipse cx="55" cy="60" rx="38" ry="33" fill="${cat.body}" stroke="#3d312e" stroke-width="2.5"/>
+          <path d="M50 28 L50 37 M55 27 L55 39 M60 28 L60 37" stroke="${cat.stripe}" stroke-width="2.5" stroke-linecap="round"/>
+          ${eyeSvg}
+          <polygon points="52,60 58,60 55,64" fill="#ff758f"/>
+          ${mouthSvg}
+          <line x1="15" y1="58" x2="30" y2="60" stroke="#3d312e" stroke-width="2" stroke-linecap="round"/>
+          <line x1="15" y1="65" x2="30" y2="65" stroke="#3d312e" stroke-width="2" stroke-linecap="round"/>
+          <line x1="95" y1="58" x2="80" y2="60" stroke="#3d312e" stroke-width="2" stroke-linecap="round"/>
+          <line x1="95" y1="65" x2="80" y2="65" stroke="#3d312e" stroke-width="2" stroke-linecap="round"/>
+          ${fishSvg}
+        </svg>
+      `;
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function setUnit(unit, btn) {
+      currentUnit = unit;
+      document.querySelectorAll('.controls:first-of-type .pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      restartAll();
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('modeSpellBtn').classList.toggle('active', mode === 'spell');
+      document.getElementById('modeChoiceBtn').classList.toggle('active', mode === 'choice');
+      loadQuestion();
+    }
+
+    function restartAll() {
+      const base = currentUnit === 'all' ? WORDS : WORDS.filter(w => w.unit === currentUnit);
+      queue = shuffle(base);
+      currentIndex = 0;
+      wrongWords = [];
+      document.getElementById('resultModal').style.display = 'none';
+      document.getElementById('quizCard').style.display = 'block';
+      loadQuestion();
+    }
+
+    function retryWrong() {
+      if (!wrongWords.length) return;
+      queue = shuffle(wrongWords);
+      currentIndex = 0;
+      wrongWords = [];
+      document.getElementById('resultModal').style.display = 'none';
+      document.getElementById('quizCard').style.display = 'block';
+      loadQuestion();
+    }
+
+    function updateHint() {
+      const target = queue[currentIndex].word;
+      let display = '';
+      for (let i = 0; i < target.length; i++) {
+        display += i < revealedCount ? target[i] + ' ' : '_ ';
+      }
+      document.getElementById('hintText').textContent = display.trim();
+    }
+
+    function giveHint() {
+      if (locked) return;
+      const target = queue[currentIndex].word;
+      if (revealedCount < target.length) {
+        revealedCount++;
+        updateHint();
+        document.getElementById('spellInput').focus();
+      }
+    }
+
+    function speakCurrent() {
+      if (!queue[currentIndex]) return;
+      const u = new SpeechSynthesisUtterance(queue[currentIndex].word);
+      u.lang = 'en-US';
+      u.rate = 0.9;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
+
+    function loadQuestion() {
+      if (currentIndex >= queue.length) {
+        showResult();
+        return;
+      }
+      locked = false;
+      revealedCount = 0;
+      const item = queue[currentIndex];
+      const pct = Math.round((currentIndex / queue.length) * 100);
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('unitTag').textContent = `${item.unitName} (${currentIndex + 1}/${queue.length})`;
+      document.getElementById('wordMeaning').textContent = item.meaning;
+      document.getElementById('wordPhonetic').textContent = item.phonetic;
+      document.getElementById('feedbackText').textContent = '';
+
+      renderCat(Math.floor(currentIndex / 8), 'normal');
+      document.getElementById('catBubble').textContent = '仔细看中文释义和音标，准备投喂小鱼干~';
+
+      if (currentMode === 'spell') {
+        document.getElementById('spellArea').style.display = 'flex';
+        document.getElementById('choiceArea').style.display = 'none';
+        const input = document.getElementById('spellInput');
+        input.value = '';
+        updateHint();
+        setTimeout(() => input.focus(), 80);
+      } else {
+        document.getElementById('spellArea').style.display = 'none';
+        const choiceArea = document.getElementById('choiceArea');
+        choiceArea.style.display = 'grid';
+        const distractors = shuffle(WORDS.filter(w => w.word !== item.word)).slice(0, 3);
+        const options = shuffle([item, ...distractors]);
+        choiceArea.innerHTML = '';
+        options.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.textContent = opt.word;
+          btn.onclick = () => checkChoice(opt.word, btn);
+          choiceArea.appendChild(btn);
+        });
+      }
+    }
+
+    function handleAnswer(isRight) {
+      locked = true;
+      const item = queue[currentIndex];
+      const avatar = document.getElementById('catAvatar');
+      const fb = document.getElementById('feedbackText');
+
+      if (isRight) {
+        fish++;
+        streak++;
+        document.getElementById('fishCount').textContent = fish;
+        document.getElementById('streakCount').textContent = streak;
+        renderCat(Math.floor(currentIndex / 8), 'happy');
+        avatar.classList.remove('bounce');
+        void avatar.offsetWidth;
+        avatar.classList.add('bounce');
+        document.getElementById('catBubble').textContent = streak >= 3 ? `太强了！连对 ${streak} 题，猫咪狂炫小鱼干！` : '喵呜！好吃！拼写完全正确！';
+        fb.style.color = 'var(--correct)';
+        fb.textContent = `[正确] ${item.word}`;
+        speakCurrent();
+        setTimeout(() => {
+          currentIndex++;
+          loadQuestion();
+        }, 1050);
+      } else {
+        streak = 0;
+        document.getElementById('streakCount').textContent = 0;
+        if (!wrongWords.some(w => w.word === item.word)) wrongWords.push(item);
+        renderCat(Math.floor(currentIndex / 8), 'sad');
+        avatar.classList.remove('shake');
+        void avatar.offsetWidth;
+        avatar.classList.add('shake');
+        document.getElementById('catBubble').textContent = '喵呜…差一点点，记住正确拼写哦！';
+        fb.style.color = 'var(--wrong)';
+        fb.textContent = `[错误] 正确拼写是：${item.word}`;
+        speakCurrent();
+        setTimeout(() => {
+          currentIndex++;
+          loadQuestion();
+        }, 1800);
+      }
+    }
+
+    function checkSpell() {
+      if (locked) return;
+      const val = document.getElementById('spellInput').value.trim().toLowerCase();
+      if (!val) return;
+      const target = queue[currentIndex].word.toLowerCase();
+      handleAnswer(val === target);
+    }
+
+    function checkChoice(selected, btn) {
+      if (locked) return;
+      const target = queue[currentIndex].word;
+      const isRight = selected === target;
+      if (isRight) {
+        btn.classList.add('right');
+      } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.option-btn').forEach(b => {
+          if (b.textContent === target) b.classList.add('right');
+        });
+      }
+      handleAnswer(isRight);
+    }
+
+    function showResult() {
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('quizCard').style.display = 'none';
+      const modal = document.getElementById('resultModal');
+      modal.style.display = 'block';
+      const total = queue.length;
+      const rightCount = total - wrongWords.length;
+      document.getElementById('resultSummary').textContent = `共 ${total} 词，答对 ${rightCount} 词，累计收获 ${fish} 条小鱼干！`;
+
+      const box = document.getElementById('wrongListBox');
+      const retryBtn = document.getElementById('retryWrongBtn');
+      if (wrongWords.length === 0) {
+        box.innerHTML = '全部通关！一只错题都没有，猫咪们对你超级满意！';
+        retryBtn.style.display = 'none';
+      } else {
+        retryBtn.style.display = 'block';
+        box.innerHTML = '<strong>本轮错题本（建议再默写一遍）：</strong><br>' +
+          wrongWords.map(w => `• <b>${w.word}</b> ${w.phonetic} — ${w.meaning}`).join('<br>');
+      }
+    }
+
+    document.getElementById('spellInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkSpell();
+    });
+
+    restartAll();
+  </script>
+</body>
+</html>
